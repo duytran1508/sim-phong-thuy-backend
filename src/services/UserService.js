@@ -4,7 +4,8 @@ const bcrypt = require("bcrypt");
 // Đăng ký
 const register = async (data) => {
   try {
-    const { username, password, email } = data;
+    console.log("data", data)
+    const { name, password, email } = data;
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -13,7 +14,7 @@ const register = async (data) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
-      username,
+      name,
       email,
       password: hashedPassword,
     });
@@ -74,7 +75,17 @@ const update = async (id, data) => {
     if (data.password) {
       data.password = await bcrypt.hash(data.password, 10);
     }
-    const user = await User.findByIdAndUpdate(id, data, { new: true });
+
+    // Chỉ cho phép update một số field nhất định
+    const allowedFields = ["name", "email", "password", "phone"];
+    const updateData = {};
+    for (const key of allowedFields) {
+      if (data[key] !== undefined) {
+        updateData[key] = data[key];
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(id, updateData, { new: true }).select("-password");
     if (!user) {
       return { status: 404, success: false, message: "Không tìm thấy user" };
     }
@@ -83,6 +94,7 @@ const update = async (id, data) => {
     return { status: 500, success: false, message: "Lỗi khi cập nhật", error: error.message };
   }
 };
+
 
 // Xoá user
 const remove = async (id) => {
