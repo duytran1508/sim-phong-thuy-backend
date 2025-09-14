@@ -118,6 +118,25 @@ const updateUser = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { id } = req.params; // id user cần đổi mật khẩu
+    const { oldPassword, newPassword } = req.body;
+
+    const response = await UserService.changePassword(id, oldPassword, newPassword);
+
+    return res.status(response.status).json(response);
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Lỗi server",
+      error: error.message
+    });
+  }
+};
+
+
 // [DELETE] /api/users/:id
 const deleteUser = async (req, res) => {
   try {
@@ -151,4 +170,5 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  changePassword,
 };

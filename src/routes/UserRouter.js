@@ -14,4 +14,7 @@ router.delete("/delete/:id", userController.deleteUser);
 // [GET] /api/user 
 router.get("/getall", userController.getAllUsers); 
 
+router.put("/password/:id", userController.changePassword);
+
+
 module.exports = router;

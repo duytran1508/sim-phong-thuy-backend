@@ -72,13 +72,9 @@ const getById = async (id) => {
 // Cập nhật user
 const update = async (id, data) => {
   try {
-    if (data.password) {
-      data.password = await bcrypt.hash(data.password, 10);
-    }
-
-    // Chỉ cho phép update một số field nhất định
-    const allowedFields = ["name", "email", "password", "phone"];
+    const allowedFields = ["name", "email", "phone"];
     const updateData = {};
+
     for (const key of allowedFields) {
       if (data[key] !== undefined) {
         updateData[key] = data[key];
@@ -89,12 +85,35 @@ const update = async (id, data) => {
     if (!user) {
       return { status: 404, success: false, message: "Không tìm thấy user" };
     }
-    return { status: 200, success: true, message: "Cập nhật thành công", data: user };
+    return { status: 200, success: true, message: "Cập nhật thông tin thành công", data: user };
   } catch (error) {
-    return { status: 500, success: false, message: "Lỗi khi cập nhật", error: error.message };
+    return { status: 500, success: false, message: "Lỗi cập nhật thông tin", error: error.message };
   }
 };
 
+const changePassword = async (id, oldPassword, newPassword) => {
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return { status: 404, success: false, message: "Không tìm thấy user" };
+    }
+
+    // Kiểm tra mật khẩu cũ
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return { status: 400, success: false, message: "Mật khẩu cũ không đúng" };
+    }
+
+    // Hash mật khẩu mới
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return { status: 200, success: true, message: "Đổi mật khẩu thành công" };
+  } catch (error) {
+    return { status: 500, success: false, message: "Lỗi khi đổi mật khẩu", error: error.message };
+  }
+};
 
 // Xoá user
 const remove = async (id) => {
@@ -116,4 +135,5 @@ module.exports = {
   getById,
   update,
   remove,
+  changePassword
 };
