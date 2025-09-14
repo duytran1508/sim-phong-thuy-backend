@@ -4,7 +4,7 @@ const FeedbackController = require("../controllers/FeedbackController");
 const { authMiddleware, adminStaffOnly } = require("../middleware/auth");
 
 // POST /api/feedback/create: tạo feedback (có thể thêm authMiddleware nếu muốn bắt login)
-router.post("/create", authMiddleware, FeedbackController.createFeedback);
+router.post("/create", FeedbackController.createFeedback);
 
 // GET /api/feedback/getAll: chỉ admin/staff mới được xem tất cả feedback
 router.get("/getAll", authMiddleware, adminStaffOnly, FeedbackController.getAllFeedback);

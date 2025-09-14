@@ -1,17 +1,40 @@
 const FeedbackService = require("../services/FeedbackService");
+const User = require("../models/UserModel") 
 
 // [POST] /api/feedback
 const createFeedback = async (req, res) => {
   try {
-    const { userId, content, rating } = req.body;
-    if (!userId || !content || !rating) {
+    const { userId, message, rating, imageUrls, videoUrl, source, published } = req.body;
+
+    // Kiểm tra bắt buộc
+    if (!userId || !message || !rating) {
       return res.status(400).json({
         status: "ERR",
-        message: "userId, content và rating là bắt buộc",
+        message: "userId, message và rating là bắt buộc",
       });
     }
 
-    const response = await FeedbackService.create({ userId, content, rating });
+    // Lấy tên user từ userId
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: "ERR",
+        message: "Không tìm thấy người dùng",
+      });
+    }
+
+    const feedbackData = {
+      userId,
+      customerName: user.name || user.username || "Người dùng",
+      message,
+      rating,
+      imageUrls: imageUrls || [],
+      videoUrl: videoUrl || "",
+      source: source || "WEBSITE",
+      published: typeof published === "boolean" ? published : true,
+    };
+
+    const response = await FeedbackService.create(feedbackData);
 
     if (response.status === "ERR") {
       return res.status(400).json(response);
@@ -21,10 +44,11 @@ const createFeedback = async (req, res) => {
   } catch (e) {
     return res.status(500).json({
       status: "ERR",
-      message: e.message || "Lỗi server",
+      message: e.message || "Lỗi khi tạo feedback",
     });
   }
 };
+
 
 // [GET] /api/feedback
 const getAllFeedback = async (req, res) => {
