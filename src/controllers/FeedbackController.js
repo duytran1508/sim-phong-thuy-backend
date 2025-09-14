@@ -66,15 +66,15 @@ const getAllFeedback = async (req, res) => {
 // [GET] /api/feedback/:id
 const getFeedbackById = async (req, res) => {
   try {
-    const { id } = req.params;
-    if (!id) {
+    const { userId } = req.params;
+    if (!userId) {
       return res.status(400).json({
         status: "ERR",
-        message: "Feedback ID là bắt buộc",
+        message: "userId là bắt buộc",
       });
     }
 
-    const response = await FeedbackService.getById(id);
+    const response = await FeedbackService.getByUserId(userId);
 
     if (response.status === "ERR") {
       return res.status(404).json(response);
@@ -88,6 +88,7 @@ const getFeedbackById = async (req, res) => {
     });
   }
 };
+
 
 // [PUT] /api/feedback/:id
 const updateFeedback = async (req, res) => {

@@ -22,17 +22,27 @@ const getAll = async () => {
 };
 
 // Lấy feedback theo ID
-const getById = async (id) => {
+const getByUserId = async (userId) => {
   try {
-    const feedback = await Feedback.findById(id).populate("userId", "fullName email");
-    if (!feedback) {
-      return { status: 404, success: false, message: "Không tìm thấy feedback" };
+    // Tìm tất cả feedback của user này
+    const feedbacks = await Feedback.find({ userId })
+      .populate("userId", "fullName email");
+
+    if (!feedbacks || feedbacks.length === 0) {
+      return { status: "ERR", success: false, message: "Không tìm thấy feedback" };
     }
-    return { status: 200, success: true, data: feedback };
+
+    return { status: "OK", success: true, data: feedbacks };
   } catch (error) {
-    return { status: 500, success: false, message: "Lỗi khi lấy feedback", error: error.message };
+    return { 
+      status: "ERR", 
+      success: false, 
+      message: "Lỗi khi lấy feedback", 
+      error: error.message 
+    };
   }
 };
+
 
 // Cập nhật feedback
 const update = async (id, data) => {
@@ -63,7 +73,7 @@ const remove = async (id) => {
 module.exports = {
   create,
   getAll,
-  getById,
+  getByUserId,
   update,
   remove,
 };

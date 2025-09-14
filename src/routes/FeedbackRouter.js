@@ -10,8 +10,7 @@ router.post("/create", FeedbackController.createFeedback);
 router.get("/getAll", FeedbackController.getAllFeedback);
 
 // GET /api/feedback/get-details/:id: chỉ admin/staff mới được xem chi tiết
-router.get("/get-details/:id", FeedbackController.getFeedbackById);
-
+router.get("/get-details/:userId", FeedbackController.getFeedbackById);
 // PUT /api/feedback/update/:id: chỉ admin/staff mới được cập nhật
 router.put("/update/:id", authMiddleware, adminStaffOnly, FeedbackController.updateFeedback);
 
