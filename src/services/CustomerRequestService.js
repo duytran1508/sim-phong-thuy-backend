@@ -51,6 +51,50 @@ const getAllRequests = async () => {
   }
 };
 
+const confirmRequest = async (id) => {
+  try {
+    const request = await CustomerRequest.findById(id);
+    if (!request) {
+      return { status: "ERR", message: "Không tìm thấy yêu cầu" };
+    }
+
+    // Nếu đã DONE thì không cho xác nhận nữa
+    if (request.status === "DONE") {
+      return { status: "ERR", message: "Yêu cầu đã hoàn tất, không thể xác nhận" };
+    }
+
+    request.status = "CONFIRMED";
+    await request.save();
+
+    return { status: "OK", message: "Xác nhận yêu cầu thành công", data: request };
+  } catch (error) {
+    return { status: "ERR", message: error.message };
+  }
+};
+
+// Hoàn tất yêu cầu (CONFIRMED -> DONE)
+const completeRequest = async (id) => {
+  try {
+    const request = await CustomerRequest.findById(id);
+    if (!request) {
+      return { status: "ERR", message: "Không tìm thấy yêu cầu" };
+    }
+
+    // Nếu chưa CONFIRMED thì không cho chuyển DONE
+    if (request.status !== "CONFIRMED") {
+      return { status: "ERR", message: "Chỉ có thể hoàn tất yêu cầu đã xác nhận" };
+    }
+
+    request.status = "DONE";
+    await request.save();
+
+    return { status: "OK", message: "Hoàn tất yêu cầu thành công", data: request };
+  } catch (error) {
+    return { status: "ERR", message: error.message };
+  }
+};
+
+
 // Lấy chi tiết theo id
 const getRequestById = async (id) => {
   try {
@@ -95,5 +139,7 @@ module.exports = {
   getAllRequests,
   getRequestById,
   updateRequest,
-  deleteRequest
+  deleteRequest,
+  confirmRequest,
+  completeRequest
 };

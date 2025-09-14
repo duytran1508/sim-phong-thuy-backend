@@ -1,45 +1,57 @@
 const CustomerRequestService = require("../services/CustomerRequestService");
+const User = require ("../models/UserModel")
 
 // POST /api/request-sim
 const createRequest = async (req, res) => {
   try {
     const {
+      user,                // ObjectId của User (nếu có)
       fullName,
       birthDate,
       cccd,
-      sims = [],
+      sims = [],           // Mảng sim { phoneNumber, usedDurationMonths }
       nhuCau,
-      nhaMang,
-      soSim,
-      soThich,
+      mucTieu = [],        // Mảng mục tiêu chính
+      fastResultMethod,    // Kênh nhận kết quả nhanh
+      meetingType = "NONE",
+      meetingTime = null,
+      note = ""
     } = req.body;
 
-    if (!fullName || !birthDate || !cccd) {
+    // Kiểm tra các trường bắt buộc
+    if (!fullName || !birthDate || !cccd || !nhuCau || !fastResultMethod) {
       return res.status(400).json({
         status: "ERR",
-        message: "Thiếu thông tin bắt buộc",
+        message: "Thiếu thông tin bắt buộc: fullName, birthDate, cccd, nhuCau, fastResultMethod",
       });
     }
 
+    // Đảm bảo sims là mảng và đúng cấu trúc
+    const simsArray = Array.isArray(sims) ? sims : [];
+
     const response = await CustomerRequestService.createRequest({
+      user: user || null,
       fullName,
       birthDate,
       cccd,
-      sims,
+      sims: simsArray,
       nhuCau,
-      nhaMang,
-      soSim,
-      soThich,
+      mucTieu,
+      fastResultMethod,
+      meetingType,
+      meetingTime,
+      note
     });
 
-    return res.status(200).json(response);
+    return res.status(201).json(response);
   } catch (error) {
     return res.status(500).json({
       status: "ERR",
-      message: error.message,
+      message: error.message || "Lỗi server",
     });
   }
 };
+
 
 // GET /api/request-sim
 const getAllRequests = async (req, res) => {
@@ -53,6 +65,36 @@ const getAllRequests = async (req, res) => {
     });
   }
 };
+
+const confirmRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const response = await CustomerRequestService.confirmRequest(id);
+
+    if (response.status === "ERR") {
+      return res.status(404).json(response);
+    }
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(500).json({ status: "ERR", message: error.message });
+  }
+};
+
+// Hoàn tất DONE
+const completeRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const response = await CustomerRequestService.completeRequest(id);
+
+    if (response.status === "ERR") {
+      return res.status(404).json(response);
+    }
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(500).json({ status: "ERR", message: error.message });
+  }
+};
+
 
 // GET /api/request-sim/:id
 const getRequestById = async (req, res) => {
@@ -102,4 +144,6 @@ module.exports = {
   getRequestById,
   updateRequest,
   deleteRequest,
+  confirmRequest,
+  completeRequest
 };

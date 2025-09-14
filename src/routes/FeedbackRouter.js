@@ -7,10 +7,10 @@ const { authMiddleware, adminStaffOnly } = require("../middleware/auth");
 router.post("/create", FeedbackController.createFeedback);
 
 // GET /api/feedback/getAll: chỉ admin/staff mới được xem tất cả feedback
-router.get("/getAll", authMiddleware, adminStaffOnly, FeedbackController.getAllFeedback);
+router.get("/getAll", FeedbackController.getAllFeedback);
 
 // GET /api/feedback/get-details/:id: chỉ admin/staff mới được xem chi tiết
-router.get("/get-details/:id", authMiddleware, adminStaffOnly, FeedbackController.getFeedbackById);
+router.get("/get-details/:id", FeedbackController.getFeedbackById);
 
 // PUT /api/feedback/update/:id: chỉ admin/staff mới được cập nhật
 router.put("/update/:id", authMiddleware, adminStaffOnly, FeedbackController.updateFeedback);
