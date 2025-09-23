@@ -163,6 +163,32 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// UserController.js
+const updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { vai_tro } = req.body;
+
+    // chỉ admin mới được đổi role
+    if (req.userRole !== 0) {
+      return res.status(403).json({
+        status: "ERR",
+        message: "Chỉ admin mới có quyền đổi vai trò"
+      });
+    }
+
+    const response = await UserService.updateRole(id, vai_tro);
+
+    return res.status(response.status).json(response);
+  } catch (e) {
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message || "Lỗi server"
+    });
+  }
+};
+
+
 module.exports = {
   registerUser,
   loginUser,
@@ -171,4 +197,5 @@ module.exports = {
   updateUser,
   deleteUser,
   changePassword,
+  updateUserRole,
 };

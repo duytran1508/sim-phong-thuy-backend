@@ -19,4 +19,4 @@ mongoose.connect(process.env.MONGO_DB)
     .then(() => console.log("Ket noi db thanh cong"))
     .catch(err => console.error(err));
 
-app.listen(process.env.PORT || 3000, () => console.log("Server chạy trên port", process.env.PORT || 3000));
+app.listen(process.env.PORT || 3009, () => console.log("Server chạy trên port", process.env.PORT || 3009));

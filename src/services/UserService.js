@@ -1,5 +1,6 @@
 const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // Đăng ký
 const register = async (data) => {
@@ -40,9 +41,37 @@ const login = async (data) => {
       return { status: 400, success: false, message: "Sai mật khẩu" };
     }
 
-    return { status: 200, success: true, message: "Đăng nhập thành công", data: user };
+    // Tạo access token
+    const accessToken = jwt.sign(
+      { id: user._id, role: user.vai_tro },
+      process.env.ACCESS_TOKEN,        // secret
+      { expiresIn: "1d" }              // thời gian hết hạn
+    );    
+
+    // (optional) tạo refresh token
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN,       // dùng secret riêng
+      { expiresIn: "7d" }
+    );    
+
+    return {
+      status: 200,
+      success: true,
+      message: "Đăng nhập thành công",
+      data: {
+        user,
+        accessToken,
+        refreshToken, // nếu cần
+      },
+    };
   } catch (error) {
-    return { status: 500, success: false, message: "Lỗi khi đăng nhập", error: error.message };
+    return {
+      status: 500,
+      success: false,
+      message: "Lỗi khi đăng nhập",
+      error: error.message,
+    };
   }
 };
 
@@ -128,6 +157,29 @@ const remove = async (id) => {
   }
 };
 
+// Cập nhật vai trò
+const updateRole = async (id, role) => {
+  try {
+    if (![0, 1, 2].includes(role)) {
+      return { status: 400, success: false, message: "Vai trò không hợp lệ" };
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { vai_tro: role },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return { status: 404, success: false, message: "Không tìm thấy user" };
+    }
+
+    return { status: 200, success: true, message: "Cập nhật vai trò thành công", data: user };
+  } catch (error) {
+    return { status: 500, success: false, message: "Lỗi cập nhật vai trò", error: error.message };
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -135,5 +187,6 @@ module.exports = {
   getById,
   update,
   remove,
-  changePassword
+  changePassword,
+  updateRole
 };

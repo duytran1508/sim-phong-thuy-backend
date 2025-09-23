@@ -1,6 +1,9 @@
 const express = require("express"); 
 const router = express.Router(); 
 const userController = require("../controllers/userController"); 
+const { authMiddleware, adminOnly } = require("../middleware/auth");
+
+
 // [POST] /api/user/register 
 router.post("/register", userController.registerUser); 
 // [POST] /api/user/login 
@@ -15,6 +18,9 @@ router.delete("/delete/:id", userController.deleteUser);
 router.get("/getall", userController.getAllUsers); 
 
 router.put("/password/:id", userController.changePassword);
+
+// [PUT] /api/users/:id/role
+router.put("/update-role/:id", authMiddleware, adminOnly, userController.updateUserRole);
 
 
 module.exports = router;

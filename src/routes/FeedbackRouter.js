@@ -15,6 +15,6 @@ router.get("/get-details/:userId", FeedbackController.getFeedbackById);
 router.put("/update/:id", authMiddleware, adminStaffOnly, FeedbackController.updateFeedback);
 
 // DELETE /api/feedback/delete/:id: chỉ admin/staff mới được xóa
-router.delete("/delete/:id", authMiddleware, adminStaffOnly, FeedbackController.deleteFeedback);
+router.delete("/delete/:id", authMiddleware, adminStaffOnly , FeedbackController.deleteFeedback);
 
 module.exports = router;

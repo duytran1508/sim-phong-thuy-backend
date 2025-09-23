@@ -4,20 +4,24 @@ const User = require("../models/UserModel");
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
+    console.log("Auth Header:", authHeader); // 🔹 log header gửi lên
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ status: "ERR", message: "Chưa đăng nhập" });
     }
 
     const token = authHeader.split(" ")[1];
+    console.log("Token extracted:", token); // 🔹 log token
 
     // Xác thực token
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN || "default_secret");
+    console.log("Decoded payload:", decoded); // 🔹 log payload sau khi verify
     if (!decoded?.id) {
       return res.status(401).json({ status: "ERR", message: "Token không hợp lệ" });
     }
 
     // Lấy user từ DB để xác thực vai trò
     const user = await User.findById(decoded.id);
+    console.log("User from DB:", user); // 🔹 log user tìm ra từ DB
     if (!user) {
       return res.status(401).json({ status: "ERR", message: "Người dùng không tồn tại" });
     }
@@ -28,6 +32,7 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error("JWT auth error:", error.message); // 🔹 log lỗi verify
     console.error("JWT auth error:", error.message);
     return res.status(401).json({ status: "ERR", message: "Token không hợp lệ hoặc hết hạn" });
   }
